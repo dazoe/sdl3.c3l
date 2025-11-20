@@ -169,7 +169,7 @@ macro define_audio_format(signed, bigendian, flt, size)
  Audio format.
  This enum is available since SDL 3.2.0.
 *>
-enum SDLAudioFormat : const uint
+enum SDLAudioFormat : const CUint
 {
 	UNKNOWN   = 0x0000u,  // Unspecified audio format
 	U8        = 0x0008u,  // Unsigned 8-bit samples
@@ -396,7 +396,7 @@ typedef SDLAudioStream = void;
 
  @return `the number of built-in audio drivers.`
 *>
-extern fn int get_num_audio_drivers() @extern("SDL_GetNumAudioDrivers");
+extern fn CInt get_num_audio_drivers() @extern("SDL_GetNumAudioDrivers");
 
 <*
  Use this function to get the name of a built in audio driver.
@@ -415,7 +415,7 @@ extern fn int get_num_audio_drivers() @extern("SDL_GetNumAudioDrivers");
  @param index : `the index of the audio driver; the value ranges from 0 to SDL_GetNumAudioDrivers() - 1.`
  @return `the name of the audio driver at the requested index, or NULL if an invalid index was specified.`
 *>
-extern fn ZString get_audio_driver(int index) @extern("SDL_GetAudioDriver");
+extern fn ZString get_audio_driver(CInt index) @extern("SDL_GetAudioDriver");
 
 <*
  Get the name of the current audio driver.
@@ -452,7 +452,7 @@ extern fn ZString get_current_audio_driver() @extern("SDL_GetCurrentAudioDriver"
  @param count : `a pointer filled in with the number of devices returned, may be NULL.`
  @return `a 0 terminated array of device instance IDs or NULL on error; call SDL_GetError() for more information. This should be freed with SDL_free() when it is no longer needed.`
 *>
-extern fn SDLAudioDeviceID* get_audio_playback_devices(int* count) @extern("SDL_GetAudioPlaybackDevices");
+extern fn SDLAudioDeviceID* get_audio_playback_devices(CInt* count) @extern("SDL_GetAudioPlaybackDevices");
 
 <*
  Get a list of currently-connected audio recording devices.
@@ -474,7 +474,7 @@ extern fn SDLAudioDeviceID* get_audio_playback_devices(int* count) @extern("SDL_
  @param count : `a pointer filled in with the number of devices returned, may be NULL.`
  @return `a 0 terminated array of device instance IDs, or NULL on failure; call SDL_GetError() for more information. This should be freed with SDL_free() when it is no longer needed.`
 *>
-extern fn SDLAudioDeviceID* get_audio_recording_devices(int* count) @extern("SDL_GetAudioRecordingDevices");
+extern fn SDLAudioDeviceID* get_audio_recording_devices(CInt* count) @extern("SDL_GetAudioRecordingDevices");
 
 <*
  Get the human-readable name of a specific audio device.
@@ -517,7 +517,7 @@ extern fn ZString SDLAudioDeviceID.get_name(devid) @extern("SDL_GetAudioDeviceNa
  @param sample_frames : `pointer to store device buffer size, in sample frames. Can be NULL.`
  @return `true on success or false on failure; call SDL_GetError() for more information.`
 *>
-extern fn bool SDLAudioDeviceID.get_format(devid, SDLAudioSpec* spec, int* sample_frames) @extern("SDL_GetAudioDeviceFormat");
+extern fn bool SDLAudioDeviceID.get_format(devid, SDLAudioSpec* spec, CInt* sample_frames) @extern("SDL_GetAudioDeviceFormat");
 
 <*
  Get the current channel map of an audio device.
@@ -535,7 +535,7 @@ extern fn bool SDLAudioDeviceID.get_format(devid, SDLAudioSpec* spec, int* sampl
  @param count : `On output, set to number of channels in the map. Can be NULL.`
  @return `an array of the current channel mapping, with as many elements as the current output spec's channels, or NULL if default. This should be freed with SDL_free() when it is no longer needed.`
 *>
-extern fn int* SDLAudioDeviceID.get_channel_map(devid, int* count) @extern("SDL_GetAudioDeviceChannelMap");
+extern fn CInt* SDLAudioDeviceID.get_channel_map(devid, CInt* count) @extern("SDL_GetAudioDeviceChannelMap");
 
 <*
  Open a specific audio device.
@@ -667,39 +667,874 @@ extern fn bool SDLAudioDeviceID.is_playback(devid) @extern("SDL_IsAudioDevicePla
 *>
 extern fn bool SDLAudioDeviceID.pause(devid) @extern("SDL_PauseAudioDevice");
 
-
+/**
+ * Use this function to unpause audio playback on a specified device.
+ *
+ * This function unpauses audio processing for a given device that has
+ * previously been paused with SDL_PauseAudioDevice(). Once unpaused, any
+ * bound audio streams will begin to progress again, and audio can be
+ * generated.
+ *
+ * Unlike in SDL2, audio devices start in an _unpaused_ state, since an app
+ * has to bind a stream before any audio will flow. Unpausing an unpaused
+ * device is a legal no-op.
+ *
+ * Physical devices can not be paused or unpaused, only logical devices
+ * created through SDL_OpenAudioDevice() can be.
+ *
+ * \param devid a device opened by SDL_OpenAudioDevice().
+ * \returns true on success or false on failure; call SDL_GetError() for more
+ *          information.
+ *
+ * \threadsafety It is safe to call this function from any thread.
+ *
+ * \since This function is available since SDL 3.2.0.
+ *
+ * \sa SDL_AudioDevicePaused
+ * \sa SDL_PauseAudioDevice
+ */
 extern fn bool SDLAudioDeviceID.resume(devid) @extern("SDL_ResumeAudioDevice");
+
+/**
+ * Use this function to query if an audio device is paused.
+ *
+ * Unlike in SDL2, audio devices start in an _unpaused_ state, since an app
+ * has to bind a stream before any audio will flow.
+ *
+ * Physical devices can not be paused or unpaused, only logical devices
+ * created through SDL_OpenAudioDevice() can be. Physical and invalid device
+ * IDs will report themselves as unpaused here.
+ *
+ * \param devid a device opened by SDL_OpenAudioDevice().
+ * \returns true if device is valid and paused, false otherwise.
+ *
+ * \threadsafety It is safe to call this function from any thread.
+ *
+ * \since This function is available since SDL 3.2.0.
+ *
+ * \sa SDL_PauseAudioDevice
+ * \sa SDL_ResumeAudioDevice
+ */
 extern fn bool SDLAudioDeviceID.paused(devid) @extern("SDL_AudioDevicePaused");
+
+/**
+ * Get the gain of an audio device.
+ *
+ * The gain of a device is its volume; a larger gain means a louder output,
+ * with a gain of zero being silence.
+ *
+ * Audio devices default to a gain of 1.0f (no change in output).
+ *
+ * Physical devices may not have their gain changed, only logical devices, and
+ * this function will always return -1.0f when used on physical devices.
+ *
+ * \param devid the audio device to query.
+ * \returns the gain of the device or -1.0f on failure; call SDL_GetError()
+ *          for more information.
+ *
+ * \threadsafety It is safe to call this function from any thread.
+ *
+ * \since This function is available since SDL 3.2.0.
+ *
+ * \sa SDL_SetAudioDeviceGain
+ */
 extern fn float SDLAudioDeviceID.get_gain(devid) @extern("SDL_GetAudioDeviceGain");
+
+/**
+ * Change the gain of an audio device.
+ *
+ * The gain of a device is its volume; a larger gain means a louder output,
+ * with a gain of zero being silence.
+ *
+ * Audio devices default to a gain of 1.0f (no change in output).
+ *
+ * Physical devices may not have their gain changed, only logical devices, and
+ * this function will always return false when used on physical devices. While
+ * it might seem attractive to adjust several logical devices at once in this
+ * way, it would allow an app or library to interfere with another portion of
+ * the program's otherwise-isolated devices.
+ *
+ * This is applied, along with any per-audiostream gain, during playback to
+ * the hardware, and can be continuously changed to create various effects. On
+ * recording devices, this will adjust the gain before passing the data into
+ * an audiostream; that recording audiostream can then adjust its gain further
+ * when outputting the data elsewhere, if it likes, but that second gain is
+ * not applied until the data leaves the audiostream again.
+ *
+ * \param devid the audio device on which to change gain.
+ * \param gain the gain. 1.0f is no change, 0.0f is silence.
+ * \returns true on success or false on failure; call SDL_GetError() for more
+ *          information.
+ *
+ * \threadsafety It is safe to call this function from any thread, as it holds
+ *               a stream-specific mutex while running.
+ *
+ * \since This function is available since SDL 3.2.0.
+ *
+ * \sa SDL_GetAudioDeviceGain
+ */
 extern fn bool SDLAudioDeviceID.set_gain(devid, float gain) @extern("SDL_SetAudioDeviceGain");
+
+/**
+ * Close a previously-opened audio device.
+ *
+ * The application should close open audio devices once they are no longer
+ * needed.
+ *
+ * This function may block briefly while pending audio data is played by the
+ * hardware, so that applications don't drop the last buffer of data they
+ * supplied if terminating immediately afterwards.
+ *
+ * \param devid an audio device id previously returned by
+ *              SDL_OpenAudioDevice().
+ *
+ * \threadsafety It is safe to call this function from any thread.
+ *
+ * \since This function is available since SDL 3.2.0.
+ *
+ * \sa SDL_OpenAudioDevice
+ */
 extern fn void SDLAudioDeviceID.close(devid) @extern("SDL_CloseAudioDevice");
-extern fn bool bind_audio_streams(SDLAudioDeviceID devid, SDLAudioStream** streams, int num_streams) @extern("SDL_BindAudioStreams");
+
+/**
+ * Bind a list of audio streams to an audio device.
+ *
+ * Audio data will flow through any bound streams. For a playback device, data
+ * for all bound streams will be mixed together and fed to the device. For a
+ * recording device, a copy of recorded data will be provided to each bound
+ * stream.
+ *
+ * Audio streams can only be bound to an open device. This operation is
+ * atomic--all streams bound in the same call will start processing at the
+ * same time, so they can stay in sync. Also: either all streams will be bound
+ * or none of them will be.
+ *
+ * It is an error to bind an already-bound stream; it must be explicitly
+ * unbound first.
+ *
+ * Binding a stream to a device will set its output format for playback
+ * devices, and its input format for recording devices, so they match the
+ * device's settings. The caller is welcome to change the other end of the
+ * stream's format at any time with SDL_SetAudioStreamFormat(). If the other
+ * end of the stream's format has never been set (the audio stream was created
+ * with a NULL audio spec), this function will set it to match the device
+ * end's format.
+ *
+ * \param devid an audio device to bind a stream to.
+ * \param streams an array of audio streams to bind.
+ * \param num_streams number streams listed in the `streams` array.
+ * \returns true on success or false on failure; call SDL_GetError() for more
+ *          information.
+ *
+ * \threadsafety It is safe to call this function from any thread.
+ *
+ * \since This function is available since SDL 3.2.0.
+ *
+ * \sa SDL_BindAudioStreams
+ * \sa SDL_UnbindAudioStream
+ * \sa SDL_GetAudioStreamDevice
+ */
+extern fn bool bind_audio_streams(SDLAudioDeviceID devid, SDLAudioStream** streams, CInt num_streams) @extern("SDL_BindAudioStreams");
+
+/**
+ * Bind a single audio stream to an audio device.
+ *
+ * This is a convenience function, equivalent to calling
+ * `SDL_BindAudioStreams(devid, &stream, 1)`.
+ *
+ * \param devid an audio device to bind a stream to.
+ * \param stream an audio stream to bind to a device.
+ * \returns true on success or false on failure; call SDL_GetError() for more
+ *          information.
+ *
+ * \threadsafety It is safe to call this function from any thread.
+ *
+ * \since This function is available since SDL 3.2.0.
+ *
+ * \sa SDL_BindAudioStreams
+ * \sa SDL_UnbindAudioStream
+ * \sa SDL_GetAudioStreamDevice
+ */
 extern fn bool bind_audio_stream(SDLAudioDeviceID devid, SDLAudioStream* stream) @extern("SDL_BindAudioStream");
-extern fn void unbind_audio_streams(SDLAudioStream** streams, int num_streams) @extern("SDL_UnbindAudioStreams");
+
+/**
+ * Unbind a list of audio streams from their audio devices.
+ *
+ * The streams being unbound do not all have to be on the same device. All
+ * streams on the same device will be unbound atomically (data will stop
+ * flowing through all unbound streams on the same device at the same time).
+ *
+ * Unbinding a stream that isn't bound to a device is a legal no-op.
+ *
+ * \param streams an array of audio streams to unbind. Can be NULL or contain
+ *                NULL.
+ * \param num_streams number streams listed in the `streams` array.
+ *
+ * \threadsafety It is safe to call this function from any thread.
+ *
+ * \since This function is available since SDL 3.2.0.
+ *
+ * \sa SDL_BindAudioStreams
+ */
+extern fn void unbind_audio_streams(SDLAudioStream** streams, CInt num_streams) @extern("SDL_UnbindAudioStreams");
+
+/**
+ * Unbind a single audio stream from its audio device.
+ *
+ * This is a convenience function, equivalent to calling
+ * `SDL_UnbindAudioStreams(&stream, 1)`.
+ *
+ * \param stream an audio stream to unbind from a device. Can be NULL.
+ *
+ * \threadsafety It is safe to call this function from any thread.
+ *
+ * \since This function is available since SDL 3.2.0.
+ *
+ * \sa SDL_BindAudioStream
+ */
 extern fn void unbind_audio_stream(SDLAudioStream* stream) @extern("SDL_UnbindAudioStream");
+
+/**
+ * Query an audio stream for its currently-bound device.
+ *
+ * This reports the logical audio device that an audio stream is currently bound to.
+ *
+ * If not bound, or invalid, this returns zero, which is not a valid device
+ * ID.
+ *
+ * \param stream the audio stream to query.
+ * \returns the bound audio device, or 0 if not bound or invalid.
+ *
+ * \threadsafety It is safe to call this function from any thread.
+ *
+ * \since This function is available since SDL 3.2.0.
+ *
+ * \sa SDL_BindAudioStream
+ * \sa SDL_BindAudioStreams
+ */
 extern fn SDLAudioDeviceID SDLAudioStream.get_device(&stream) @extern("SDL_GetAudioStreamDevice");
+
+/**
+ * Create a new audio stream.
+ *
+ * \param src_spec the format details of the input audio.
+ * \param dst_spec the format details of the output audio.
+ * \returns a new audio stream on success or NULL on failure; call
+ *          SDL_GetError() for more information.
+ *
+ * \threadsafety It is safe to call this function from any thread.
+ *
+ * \since This function is available since SDL 3.2.0.
+ *
+ * \sa SDL_PutAudioStreamData
+ * \sa SDL_GetAudioStreamData
+ * \sa SDL_GetAudioStreamAvailable
+ * \sa SDL_FlushAudioStream
+ * \sa SDL_ClearAudioStream
+ * \sa SDL_SetAudioStreamFormat
+ * \sa SDL_DestroyAudioStream
+ */
 extern fn SDLAudioStream* create_audio_stream(SDLAudioSpec* src_spec, SDLAudioSpec* dst_spec) @extern("SDL_CreateAudioStream");
+
+/**
+ * Get the properties associated with an audio stream.
+ *
+ * \param stream the SDL_AudioStream to query.
+ * \returns a valid property ID on success or 0 on failure; call
+ *          SDL_GetError() for more information.
+ *
+ * \threadsafety It is safe to call this function from any thread.
+ *
+ * \since This function is available since SDL 3.2.0.
+ */
 extern fn SDLPropertiesID SDLAudioStream.get_properties(&stream) @extern("SDL_GetAudioStreamProperties");
+
+/**
+ * Query the current format of an audio stream.
+ *
+ * \param stream the SDL_AudioStream to query.
+ * \param src_spec where to store the input audio format; ignored if NULL.
+ * \param dst_spec where to store the output audio format; ignored if NULL.
+ * \returns true on success or false on failure; call SDL_GetError() for more
+ *          information.
+ *
+ * \threadsafety It is safe to call this function from any thread, as it holds
+ *               a stream-specific mutex while running.
+ *
+ * \since This function is available since SDL 3.2.0.
+ *
+ * \sa SDL_SetAudioStreamFormat
+ */
 extern fn bool SDLAudioStream.get_format(&stream, SDLAudioSpec* src_spec, SDLAudioSpec* dst_spec) @extern("SDL_GetAudioStreamFormat");
+
+/**
+ * Change the input and output formats of an audio stream.
+ *
+ * Future calls to and SDL_GetAudioStreamAvailable and SDL_GetAudioStreamData
+ * will reflect the new format, and future calls to SDL_PutAudioStreamData
+ * must provide data in the new input formats.
+ *
+ * Data that was previously queued in the stream will still be operated on in
+ * the format that was current when it was added, which is to say you can put
+ * the end of a sound file in one format to a stream, change formats for the
+ * next sound file, and start putting that new data while the previous sound
+ * file is still queued, and everything will still play back correctly.
+ *
+ * If a stream is bound to a device, then the format of the side of the stream
+ * bound to a device cannot be changed (src_spec for recording devices,
+ * dst_spec for playback devices). Attempts to make a change to this side will
+ * be ignored, but this will not report an error. The other side's format can
+ * be changed.
+ *
+ * \param stream the stream the format is being changed.
+ * \param src_spec the new format of the audio input; if NULL, it is not
+ *                 changed.
+ * \param dst_spec the new format of the audio output; if NULL, it is not
+ *                 changed.
+ * \returns true on success or false on failure; call SDL_GetError() for more
+ *          information.
+ *
+ * \threadsafety It is safe to call this function from any thread, as it holds
+ *               a stream-specific mutex while running.
+ *
+ * \since This function is available since SDL 3.2.0.
+ *
+ * \sa SDL_GetAudioStreamFormat
+ * \sa SDL_SetAudioStreamFrequencyRatio
+ */
 extern fn bool SDLAudioStream.set_format(&stream, SDLAudioSpec* src_spec, SDLAudioSpec* dst_spec) @extern("SDL_SetAudioStreamFormat");
+
+/**
+ * Get the frequency ratio of an audio stream.
+ *
+ * \param stream the SDL_AudioStream to query.
+ * \returns the frequency ratio of the stream or 0.0 on failure; call
+ *          SDL_GetError() for more information.
+ *
+ * \threadsafety It is safe to call this function from any thread, as it holds
+ *               a stream-specific mutex while running.
+ *
+ * \since This function is available since SDL 3.2.0.
+ *
+ * \sa SDL_SetAudioStreamFrequencyRatio
+ */
 extern fn float SDLAudioStream.get_frequency_ratio(&stream) @extern("SDL_GetAudioStreamFrequencyRatio");
+
+/**
+ * Change the frequency ratio of an audio stream.
+ *
+ * The frequency ratio is used to adjust the rate at which input data is
+ * consumed. Changing this effectively modifies the speed and pitch of the
+ * audio. A value greater than 1.0 will play the audio faster, and at a higher
+ * pitch. A value less than 1.0 will play the audio slower, and at a lower
+ * pitch.
+ *
+ * This is applied during SDL_GetAudioStreamData, and can be continuously
+ * changed to create various effects.
+ *
+ * \param stream the stream the frequency ratio is being changed.
+ * \param ratio the frequency ratio. 1.0 is normal speed. Must be between 0.01
+ *              and 100.
+ * \returns true on success or false on failure; call SDL_GetError() for more
+ *          information.
+ *
+ * \threadsafety It is safe to call this function from any thread, as it holds
+ *               a stream-specific mutex while running.
+ *
+ * \since This function is available since SDL 3.2.0.
+ *
+ * \sa SDL_GetAudioStreamFrequencyRatio
+ * \sa SDL_SetAudioStreamFormat
+ */
 extern fn bool SDLAudioStream.set_frequency_ratio(&stream, float ratio) @extern("SDL_SetAudioStreamFrequencyRatio");
+
+/**
+ * Get the gain of an audio stream.
+ *
+ * The gain of a stream is its volume; a larger gain means a louder output,
+ * with a gain of zero being silence.
+ *
+ * Audio streams default to a gain of 1.0f (no change in output).
+ *
+ * \param stream the SDL_AudioStream to query.
+ * \returns the gain of the stream or -1.0f on failure; call SDL_GetError()
+ *          for more information.
+ *
+ * \threadsafety It is safe to call this function from any thread, as it holds
+ *               a stream-specific mutex while running.
+ *
+ * \since This function is available since SDL 3.2.0.
+ *
+ * \sa SDL_SetAudioStreamGain
+ */
 extern fn float SDLAudioStream.get_gain(&stream) @extern("SDL_GetAudioStreamGain");
+
+/**
+ * Change the gain of an audio stream.
+ *
+ * The gain of a stream is its volume; a larger gain means a louder output,
+ * with a gain of zero being silence.
+ *
+ * Audio streams default to a gain of 1.0f (no change in output).
+ *
+ * This is applied during SDL_GetAudioStreamData, and can be continuously
+ * changed to create various effects.
+ *
+ * \param stream the stream on which the gain is being changed.
+ * \param gain the gain. 1.0f is no change, 0.0f is silence.
+ * \returns true on success or false on failure; call SDL_GetError() for more
+ *          information.
+ *
+ * \threadsafety It is safe to call this function from any thread, as it holds
+ *               a stream-specific mutex while running.
+ *
+ * \since This function is available since SDL 3.2.0.
+ *
+ * \sa SDL_GetAudioStreamGain
+ */
 extern fn bool SDLAudioStream.set_gain(&stream, float gain) @extern("SDL_SetAudioStreamGain");
-extern fn int* SDLAudioStream.get_input_channel_map(&stream, int* count) @extern("SDL_GetAudioStreamInputChannelMap");
-extern fn int* SDLAudioStream.get_output_channel_map(&stream, int* count) @extern("SDL_GetAudioStreamOutputChannelMap");
-extern fn bool SDLAudioStream.set_input_channel_map(&stream, int* chmap, int count) @extern("SDL_SetAudioStreamInputChannelMap");
-extern fn bool SDLAudioStream.set_output_channel_map(&stream, int* chmap, int count) @extern("SDL_SetAudioStreamOutputChannelMap");
-extern fn bool SDLAudioStream.put_data(&stream, void* buf, int len) @extern("SDL_PutAudioStreamData");
-extern fn int SDLAudioStream.get_data(&stream, void* buf, int len) @extern("SDL_GetAudioStreamData");
-extern fn int SDLAudioStream.get_available(&stream) @extern("SDL_GetAudioStreamAvailable");
-extern fn int SDLAudioStream.get_queued(&stream) @extern("SDL_GetAudioStreamQueued");
+
+/**
+ * Get the current input channel map of an audio stream.
+ *
+ * Channel maps are optional; most things do not need them, instead passing
+ * data in the [order that SDL expects](CategoryAudio#channel-layouts).
+ *
+ * Audio streams default to no remapping applied. This is represented by
+ * returning NULL, and does not signify an error.
+ *
+ * \param stream the SDL_AudioStream to query.
+ * \param count On output, set to number of channels in the map. Can be NULL.
+ * \returns an array of the current channel mapping, with as many elements as
+ *          the current output spec's channels, or NULL if default. This
+ *          should be freed with SDL_free() when it is no longer needed.
+ *
+ * \threadsafety It is safe to call this function from any thread, as it holds
+ *               a stream-specific mutex while running.
+ *
+ * \since This function is available since SDL 3.2.0.
+ *
+ * \sa SDL_SetAudioStreamInputChannelMap
+ */
+extern fn CInt* SDLAudioStream.get_input_channel_map(&stream, CInt* count) @extern("SDL_GetAudioStreamInputChannelMap");
+
+/**
+ * Get the current output channel map of an audio stream.
+ *
+ * Channel maps are optional; most things do not need them, instead passing
+ * data in the [order that SDL expects](CategoryAudio#channel-layouts).
+ *
+ * Audio streams default to no remapping applied. This is represented by
+ * returning NULL, and does not signify an error.
+ *
+ * \param stream the SDL_AudioStream to query.
+ * \param count On output, set to number of channels in the map. Can be NULL.
+ * \returns an array of the current channel mapping, with as many elements as
+ *          the current output spec's channels, or NULL if default. This
+ *          should be freed with SDL_free() when it is no longer needed.
+ *
+ * \threadsafety It is safe to call this function from any thread, as it holds
+ *               a stream-specific mutex while running.
+ *
+ * \since This function is available since SDL 3.2.0.
+ *
+ * \sa SDL_SetAudioStreamInputChannelMap
+ */
+extern fn CInt* SDLAudioStream.get_output_channel_map(&stream, CInt* count) @extern("SDL_GetAudioStreamOutputChannelMap");
+
+/**
+ * Set the current input channel map of an audio stream.
+ *
+ * Channel maps are optional; most things do not need them, instead passing
+ * data in the [order that SDL expects](CategoryAudio#channel-layouts).
+ *
+ * The input channel map reorders data that is added to a stream via
+ * SDL_PutAudioStreamData. Future calls to SDL_PutAudioStreamData must provide
+ * data in the new channel order.
+ *
+ * Each item in the array represents an input channel, and its value is the
+ * channel that it should be remapped to. To reverse a stereo signal's left
+ * and right values, you'd have an array of `{ 1, 0 }`. It is legal to remap
+ * multiple channels to the same thing, so `{ 1, 1 }` would duplicate the
+ * right channel to both channels of a stereo signal. An element in the
+ * channel map set to -1 instead of a valid channel will mute that channel,
+ * setting it to a silence value.
+ *
+ * You cannot change the number of channels through a channel map, just
+ * reorder/mute them.
+ *
+ * Data that was previously queued in the stream will still be operated on in
+ * the order that was current when it was added, which is to say you can put
+ * the end of a sound file in one order to a stream, change orders for the
+ * next sound file, and start putting that new data while the previous sound
+ * file is still queued, and everything will still play back correctly.
+ *
+ * Audio streams default to no remapping applied. Passing a NULL channel map
+ * is legal, and turns off remapping.
+ *
+ * SDL will copy the channel map; the caller does not have to save this array
+ * after this call.
+ *
+ * If `count` is not equal to the current number of channels in the audio
+ * stream's format, this will fail. This is a safety measure to make sure a
+ * race condition hasn't changed the format while this call is setting the
+ * channel map.
+ *
+ * Unlike attempting to change the stream's format, the input channel map on a
+ * stream bound to a recording device is permitted to change at any time; any
+ * data added to the stream from the device after this call will have the new
+ * mapping, but previously-added data will still have the prior mapping.
+ *
+ * \param stream the SDL_AudioStream to change.
+ * \param chmap the new channel map, NULL to reset to default.
+ * \param count The number of channels in the map.
+ * \returns true on success or false on failure; call SDL_GetError() for more
+ *          information.
+ *
+ * \threadsafety It is safe to call this function from any thread, as it holds
+ *               a stream-specific mutex while running. Don't change the
+ *               stream's format to have a different number of channels from a
+ *               a different thread at the same time, though!
+ *
+ * \since This function is available since SDL 3.2.0.
+ *
+ * \sa SDL_SetAudioStreamInputChannelMap
+ */
+extern fn bool SDLAudioStream.set_input_channel_map(&stream, CInt* chmap, CInt count) @extern("SDL_SetAudioStreamInputChannelMap");
+
+/**
+ * Set the current output channel map of an audio stream.
+ *
+ * Channel maps are optional; most things do not need them, instead passing
+ * data in the [order that SDL expects](CategoryAudio#channel-layouts).
+ *
+ * The output channel map reorders data that leaving a stream via
+ * SDL_GetAudioStreamData.
+ *
+ * Each item in the array represents an input channel, and its value is the
+ * channel that it should be remapped to. To reverse a stereo signal's left
+ * and right values, you'd have an array of `{ 1, 0 }`. It is legal to remap
+ * multiple channels to the same thing, so `{ 1, 1 }` would duplicate the
+ * right channel to both channels of a stereo signal. An element in the
+ * channel map set to -1 instead of a valid channel will mute that channel,
+ * setting it to a silence value.
+ *
+ * You cannot change the number of channels through a channel map, just
+ * reorder/mute them.
+ *
+ * The output channel map can be changed at any time, as output remapping is
+ * applied during SDL_GetAudioStreamData.
+ *
+ * Audio streams default to no remapping applied. Passing a NULL channel map
+ * is legal, and turns off remapping.
+ *
+ * SDL will copy the channel map; the caller does not have to save this array
+ * after this call.
+ *
+ * If `count` is not equal to the current number of channels in the audio
+ * stream's format, this will fail. This is a safety measure to make sure a
+ * race condition hasn't changed the format while this call is setting the
+ * channel map.
+ *
+ * Unlike attempting to change the stream's format, the output channel map on
+ * a stream bound to a recording device is permitted to change at any time;
+ * any data added to the stream after this call will have the new mapping, but
+ * previously-added data will still have the prior mapping. When the channel
+ * map doesn't match the hardware's channel layout, SDL will convert the data
+ * before feeding it to the device for playback.
+ *
+ * \param stream the SDL_AudioStream to change.
+ * \param chmap the new channel map, NULL to reset to default.
+ * \param count The number of channels in the map.
+ * \returns true on success or false on failure; call SDL_GetError() for more
+ *          information.
+ *
+ * \threadsafety It is safe to call this function from any thread, as it holds
+ *               a stream-specific mutex while running. Don't change the
+ *               stream's format to have a different number of channels from a
+ *               a different thread at the same time, though!
+ *
+ * \since This function is available since SDL 3.2.0.
+ *
+ * \sa SDL_SetAudioStreamInputChannelMap
+ */
+extern fn bool SDLAudioStream.set_output_channel_map(&stream, CInt* chmap, CInt count) @extern("SDL_SetAudioStreamOutputChannelMap");
+
+/**
+ * Add data to the stream.
+ *
+ * This data must match the format/channels/samplerate specified in the latest
+ * call to SDL_SetAudioStreamFormat, or the format specified when creating the
+ * stream if it hasn't been changed.
+ *
+ * Note that this call simply copies the unconverted data for later. This is
+ * different than SDL2, where data was converted during the Put call and the
+ * Get call would just dequeue the previously-converted data.
+ *
+ * \param stream the stream the audio data is being added to.
+ * \param buf a pointer to the audio data to add.
+ * \param len the number of bytes to write to the stream.
+ * \returns true on success or false on failure; call SDL_GetError() for more
+ *          information.
+ *
+ * \threadsafety It is safe to call this function from any thread, but if the
+ *               stream has a callback set, the caller might need to manage
+ *               extra locking.
+ *
+ * \since This function is available since SDL 3.2.0.
+ *
+ * \sa SDL_ClearAudioStream
+ * \sa SDL_FlushAudioStream
+ * \sa SDL_GetAudioStreamData
+ * \sa SDL_GetAudioStreamQueued
+ */
+extern fn bool SDLAudioStream.put_data(&stream, void* buf, CInt len) @extern("SDL_PutAudioStreamData");
+
+/**
+ * Get converted/resampled data from the stream.
+ *
+ * The input/output data format/channels/samplerate is specified when creating
+ * the stream, and can be changed after creation by calling
+ * SDL_SetAudioStreamFormat.
+ *
+ * Note that any conversion and resampling necessary is done during this call,
+ * and SDL_PutAudioStreamData simply queues unconverted data for later. This
+ * is different than SDL2, where that work was done while inputting new data
+ * to the stream and requesting the output just copied the converted data.
+ *
+ * \param stream the stream the audio is being requested from.
+ * \param buf a buffer to fill with audio data.
+ * \param len the maximum number of bytes to fill.
+ * \returns the number of bytes read from the stream or -1 on failure; call
+ *          SDL_GetError() for more information.
+ *
+ * \threadsafety It is safe to call this function from any thread, but if the
+ *               stream has a callback set, the caller might need to manage
+ *               extra locking.
+ *
+ * \since This function is available since SDL 3.2.0.
+ *
+ * \sa SDL_ClearAudioStream
+ * \sa SDL_GetAudioStreamAvailable
+ * \sa SDL_PutAudioStreamData
+ */
+extern fn CInt SDLAudioStream.get_data(&stream, void* buf, CInt len) @extern("SDL_GetAudioStreamData");
+
+/**
+ * Get the number of converted/resampled bytes available.
+ *
+ * The stream may be buffering data behind the scenes until it has enough to
+ * resample correctly, so this number might be lower than what you expect, or
+ * even be zero. Add more data or flush the stream if you need the data now.
+ *
+ * If the stream has so much data that it would overflow an int, the return
+ * value is clamped to a maximum value, but no queued data is lost; if there
+ * are gigabytes of data queued, the app might need to read some of it with
+ * SDL_GetAudioStreamData before this function's return value is no longer
+ * clamped.
+ *
+ * \param stream the audio stream to query.
+ * \returns the number of converted/resampled bytes available or -1 on
+ *          failure; call SDL_GetError() for more information.
+ *
+ * \threadsafety It is safe to call this function from any thread.
+ *
+ * \since This function is available since SDL 3.2.0.
+ *
+ * \sa SDL_GetAudioStreamData
+ * \sa SDL_PutAudioStreamData
+ */
+extern fn CInt SDLAudioStream.get_available(&stream) @extern("SDL_GetAudioStreamAvailable");
+
+/**
+ * Get the number of bytes currently queued.
+ *
+ * This is the number of bytes put into a stream as input, not the number that
+ * can be retrieved as output. Because of several details, it's not possible
+ * to calculate one number directly from the other. If you need to know how
+ * much usable data can be retrieved right now, you should use
+ * SDL_GetAudioStreamAvailable() and not this function.
+ *
+ * Note that audio streams can change their input format at any time, even if
+ * there is still data queued in a different format, so the returned byte
+ * count will not necessarily match the number of _sample frames_ available.
+ * Users of this API should be aware of format changes they make when feeding
+ * a stream and plan accordingly.
+ *
+ * Queued data is not converted until it is consumed by
+ * SDL_GetAudioStreamData, so this value should be representative of the exact
+ * data that was put into the stream.
+ *
+ * If the stream has so much data that it would overflow an int, the return
+ * value is clamped to a maximum value, but no queued data is lost; if there
+ * are gigabytes of data queued, the app might need to read some of it with
+ * SDL_GetAudioStreamData before this function's return value is no longer
+ * clamped.
+ *
+ * \param stream the audio stream to query.
+ * \returns the number of bytes queued or -1 on failure; call SDL_GetError()
+ *          for more information.
+ *
+ * \threadsafety It is safe to call this function from any thread.
+ *
+ * \since This function is available since SDL 3.2.0.
+ *
+ * \sa SDL_PutAudioStreamData
+ * \sa SDL_ClearAudioStream
+ */
+extern fn CInt SDLAudioStream.get_queued(&stream) @extern("SDL_GetAudioStreamQueued");
+
+/**
+ * Tell the stream that you're done sending data, and anything being buffered
+ * should be converted/resampled and made available immediately.
+ *
+ * It is legal to add more data to a stream after flushing, but there may be
+ * audio gaps in the output. Generally this is intended to signal the end of
+ * input, so the complete output becomes available.
+ *
+ * \param stream the audio stream to flush.
+ * \returns true on success or false on failure; call SDL_GetError() for more
+ *          information.
+ *
+ * \threadsafety It is safe to call this function from any thread.
+ *
+ * \since This function is available since SDL 3.2.0.
+ *
+ * \sa SDL_PutAudioStreamData
+ */
 extern fn bool SDLAudioStream.flush(&stream) @extern("SDL_FlushAudioStream");
+
+/**
+ * Clear any pending data in the stream.
+ *
+ * This drops any queued data, so there will be nothing to read from the
+ * stream until more is added.
+ *
+ * \param stream the audio stream to clear.
+ * \returns true on success or false on failure; call SDL_GetError() for more
+ *          information.
+ *
+ * \threadsafety It is safe to call this function from any thread.
+ *
+ * \since This function is available since SDL 3.2.0.
+ *
+ * \sa SDL_GetAudioStreamAvailable
+ * \sa SDL_GetAudioStreamData
+ * \sa SDL_GetAudioStreamQueued
+ * \sa SDL_PutAudioStreamData
+ */
 extern fn bool SDLAudioStream.clear(&stream) @extern("SDL_ClearAudioStream");
+
+/**
+ * Use this function to pause audio playback on the audio device associated
+ * with an audio stream.
+ *
+ * This function pauses audio processing for a given device. Any bound audio
+ * streams will not progress, and no audio will be generated. Pausing one
+ * device does not prevent other unpaused devices from running.
+ *
+ * Pausing a device can be useful to halt all audio without unbinding all the
+ * audio streams. This might be useful while a game is paused, or a level is
+ * loading, etc.
+ *
+ * \param stream the audio stream associated with the audio device to pause.
+ * \returns true on success or false on failure; call SDL_GetError() for more
+ *          information.
+ *
+ * \threadsafety It is safe to call this function from any thread.
+ *
+ * \since This function is available since SDL 3.2.0.
+ *
+ * \sa SDL_ResumeAudioStreamDevice
+ */
 extern fn bool SDLAudioStream.pause_device(&stream) @extern("SDL_PauseAudioStreamDevice");
+
+/**
+ * Use this function to unpause audio playback on the audio device associated
+ * with an audio stream.
+ *
+ * This function unpauses audio processing for a given device that has
+ * previously been paused. Once unpaused, any bound audio streams will begin
+ * to progress again, and audio can be generated.
+ *
+ * Remember, SDL_OpenAudioDeviceStream opens device in a paused state, so this
+ * function call is required for audio playback to begin on such device.
+ *
+ * \param stream the audio stream associated with the audio device to resume.
+ * \returns true on success or false on failure; call SDL_GetError() for more
+ *          information.
+ *
+ * \threadsafety It is safe to call this function from any thread.
+ *
+ * \since This function is available since SDL 3.2.0.
+ *
+ * \sa SDL_PauseAudioStreamDevice
+ */
 extern fn bool SDLAudioStream.resume_device(&stream) @extern("SDL_ResumeAudioStreamDevice");
+
+/**
+ * Use this function to query if an audio device associated with a stream is
+ * paused.
+ *
+ * Unlike in SDL2, audio devices start in an _unpaused_ state, since an app
+ * has to bind a stream before any audio will flow.
+ *
+ * \param stream the audio stream associated with the audio device to query.
+ * \returns true if device is valid and paused, false otherwise.
+ *
+ * \threadsafety It is safe to call this function from any thread.
+ *
+ * \since This function is available since SDL 3.2.0.
+ *
+ * \sa SDL_PauseAudioStreamDevice
+ * \sa SDL_ResumeAudioStreamDevice
+ */
 extern fn bool SDLAudioStream.device_paused(&stream) @extern("SDL_AudioStreamDevicePaused");
+
+/**
+ * Lock an audio stream for serialized access.
+ *
+ * Each SDL_AudioStream has an internal mutex it uses to protect its data
+ * structures from threading conflicts. This function allows an app to lock
+ * that mutex, which could be useful if registering callbacks on this stream.
+ *
+ * One does not need to lock a stream to use in it most cases, as the stream
+ * manages this lock internally. However, this lock is held during callbacks,
+ * which may run from arbitrary threads at any time, so if an app needs to
+ * protect shared data during those callbacks, locking the stream guarantees
+ * that the callback is not running while the lock is held.
+ *
+ * As this is just a wrapper over SDL_LockMutex for an internal lock; it has
+ * all the same attributes (recursive locks are allowed, etc).
+ *
+ * \param stream the audio stream to lock.
+ * \returns true on success or false on failure; call SDL_GetError() for more
+ *          information.
+ *
+ * \threadsafety It is safe to call this function from any thread.
+ *
+ * \since This function is available since SDL 3.2.0.
+ *
+ * \sa SDL_UnlockAudioStream
+ */
 extern fn bool SDLAudioStream.lock(&stream) @extern("SDL_LockAudioStream");
+
+/**
+ * Unlock an audio stream for serialized access.
+ *
+ * This unlocks an audio stream after a call to SDL_LockAudioStream.
+ *
+ * \param stream the audio stream to unlock.
+ * \returns true on success or false on failure; call SDL_GetError() for more
+ *          information.
+ *
+ * \threadsafety You should only call this from the same thread that
+ *               previously called SDL_LockAudioStream.
+ *
+ * \since This function is available since SDL 3.2.0.
+ *
+ * \sa SDL_LockAudioStream
+ */
 extern fn bool SDLAudioStream.unlock(&stream) @extern("SDL_UnlockAudioStream");
 
 <*
@@ -915,7 +1750,7 @@ extern fn SDLAudioStream* open_audio_device_stream(SDLAudioDeviceID devid, SDLAu
  @param buffer : `the buffer of audio samples to be submitted. The callback can inspect and/or modify this data.`
  @param buflen : `the size of buffer in bytes.`
 *>
-alias SDLAudioPostmixCallback = fn void(void* userdata, SDLAudioSpec* spec, float* buffer, int buflen);
+alias SDLAudioPostmixCallback = fn void(void* userdata, SDLAudioSpec* spec, float* buffer, CInt buflen);
 
 <*
  Set a callback that fires when data is about to be fed to an audio device.
@@ -1124,7 +1959,7 @@ extern fn bool mix_audio(char* dst, char *src, SDLAudioFormat format, uint len, 
  @param dst_len : `will be filled with the len of dst_data.`
  @return `true on success or false on failure; call SDL_GetError() for more information.`
 *>
-extern fn bool convert_audio_samples(SDLAudioSpec* src_spec, char* src_data, int src_len, SDLAudioSpec* dst_spec, char** dst_data, int* dst_len) @extern("SDL_ConvertAudioSamples");
+extern fn bool convert_audio_samples(SDLAudioSpec* src_spec, char* src_data, CInt src_len, SDLAudioSpec* dst_spec, char** dst_data, CInt* dst_len) @extern("SDL_ConvertAudioSamples");
 
 <*
  Get the human readable name of an audio format.
