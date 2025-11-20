@@ -92,7 +92,7 @@ typedef SDLAsyncIO = void;
  Types of asynchronous I/O tasks.
  This enum is available since SDL 3.2.0.
 *>
-enum SDLAsyncIOTaskType
+enum SDLAsyncIOTaskType : const CInt
 {
     READ,   // A read operation. 
     WRITE,  // A write operation.
@@ -103,7 +103,7 @@ enum SDLAsyncIOTaskType
  Possible outcomes of an asynchronous I/O task.
  This enum is available since SDL 3.2.0.
 *>
-enum SDLAsyncIOResult
+enum SDLAsyncIOResult: const CInt
 {
     COMPLETE,  // request was completed without error
     FAILURE,   // request failed for some reason; check SDL_GetError()!
