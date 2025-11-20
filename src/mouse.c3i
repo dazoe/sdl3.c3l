@@ -103,22 +103,12 @@ enum SDLMouseWheelDirection : const CInt
  - Button 4: Side mouse button 1
  - Button 5: Side mouse button 2
 *>
-enum SDLMouseButtonFlags : const CUInt {
-    LEFT =     1,
-    MIDDLE =   2,
-    RIGHT =    3,
-    X1 =       4,
-    X2 =       5,
-}
-
-macro @button_mask(#x) => (1u << ((#x)-1));
-
-enum SDLMouseButtonMask : const CUInt {
-    L =    @button_mask((CUInt)SDLMouseButtonFlags.LEFT),
-    M =    @button_mask((CUInt)SDLMouseButtonFlags.MIDDLE),
-    R =    @button_mask((CUInt)SDLMouseButtonFlags.RIGHT),
-    X1 =   @button_mask((CUInt)SDLMouseButtonFlags.X1),
-    X2 =   @button_mask((CUInt)SDLMouseButtonFlags.X2),
+bitstruct SDLMouseButtonFlags : uint {
+    bool left :     0;
+    bool middle :   1;
+    bool right :    2;
+    bool x1 :       3;
+    bool x2 :       4;
 }
 
 /* Function prototypes */
