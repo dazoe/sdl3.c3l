@@ -341,7 +341,7 @@ alias SDLEGLIntArrayCallback = fn SDLEGLint*(void *userdata, SDLEGLDisplay displ
  fail if the GL can't provide your requested attributes at a minimum, but
  you should check to see exactly what you got.
 *>
-enum SDLGLAttr
+enum SDLGLAttr : const CInt
 {
     RED_SIZE,                    // the minimum number of bits for the red channel of the color buffer; defaults to 8.
     GREEN_SIZE,                  // the minimum number of bits for the green channel of the color buffer; defaults to 8.
