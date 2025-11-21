@@ -127,7 +127,7 @@ extern fn CInt get_num_render_drivers() @extern("SDL_GetNumRenderDrivers");
  @return `the name of the rendering driver at the requested index, or NULL
           if an invalid index was specified.`
 *>
-extern fn ZString get_render_driver(CInt index);
+extern fn ZString get_render_driver(CInt index) @extern("SDL_GetRenderDriver");
 
 <*
  Create a window and default renderer.
@@ -287,7 +287,7 @@ extern fn SDLWindow* SDLRenderer.get_window(&renderer) @extern("SDL_GetRenderWin
  @return `the name of the selected renderer, or NULL on failure; call
           SDL_GetError() for more information.`
 *>
-extern fn ZString SDLRenderer.get_name(&renderer);
+extern fn ZString SDLRenderer.get_name(&renderer) @extern("SDL_GetRendererName");
 
 <*
  Get the properties associated with a renderer.
@@ -1823,7 +1823,7 @@ extern fn bool SDLRenderer.texture(&renderer, SDLTexture* texture, SDLFRect* src
  @return `true on success or false on failure; call SDL_GetError() for more
           information.`
 *>
-extern fn bool SDLRenderer.texture_rotated(&renderer, SDLTexture *texture, SDLFRect* srcrect, SDLFRect* dstrect, double angle, SDLFPoint* center, SDLFlipMode flip);
+extern fn bool SDLRenderer.texture_rotated(&renderer, SDLTexture *texture, SDLFRect* srcrect, SDLFRect* dstrect, double angle, SDLFPoint* center, SDLFlipMode flip) @extern("SDL_RenderTextureRotated");
 
 <*
  Copy a portion of the source texture to the current rendering target, with
@@ -1848,7 +1848,7 @@ extern fn bool SDLRenderer.texture_rotated(&renderer, SDLTexture *texture, SDLFR
  @return `true on success or false on failure; call SDL_GetError() for more
           information.`
 *>
-extern fn bool SDLRenderer.texture_affine(&renderer, SDLTexture *texture, SDLFRect* srcrect, SDLFPoint* origin, SDLFPoint* right, SDLFPoint* down);
+extern fn bool SDLRenderer.texture_affine(&renderer, SDLTexture *texture, SDLFRect* srcrect, SDLFPoint* origin, SDLFPoint* right, SDLFPoint* down) @extern("SDL_RenderTextureAffine");
 
 <*
  Tile a portion of the texture to the current rendering target at subpixel
@@ -1950,7 +1950,7 @@ extern fn bool SDLRenderer.geometry(&renderer, SDLTexture* texture, SDLVertex* v
  @return `true on success or false on failure; call SDL_GetError() for more
           information.`
 *>
-extern fn bool SDLRenderer.geometry_raw(&renderer, SDLTexture* texture, float* xy, CInt xy_stride, SDLFColor* color, CInt color_stride, float* uv, CInt uv_stride, CInt num_vertices, void* indices, CInt num_indices, CInt size_indices);
+extern fn bool SDLRenderer.geometry_raw(&renderer, SDLTexture* texture, float* xy, CInt xy_stride, SDLFColor* color, CInt color_stride, float* uv, CInt uv_stride, CInt num_vertices, void* indices, CInt num_indices, CInt size_indices) @extern("SDL_RenderGeometryRaw");
 
 <*
  Read pixels from the current rendering target.
