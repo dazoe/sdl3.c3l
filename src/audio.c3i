@@ -602,7 +602,7 @@ extern fn CInt* SDLAudioDeviceID.get_channel_map(devid, CInt* count) @extern("SD
  @param spec : `the requested device configuration. Can be NULL to use reasonable defaults.`
  @return `the device ID on success or 0 on failure; call SDL_GetError() for more information.`
 *>
-extern fn SDLAudioDeviceID SDLAudioDeviceID.open(devid, SDLAudioSpec* spec) @extern("SDL_OpenAudioDevice");
+extern fn SDLAudioDeviceID open_audio_device(SDLAudioDeviceID devid, SDLAudioSpec* spec) @extern("SDL_OpenAudioDevice");
 
 <*
  Determine if an audio device is physical (instead of logical).
