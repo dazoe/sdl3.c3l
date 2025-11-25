@@ -275,7 +275,7 @@ extern fn SDLKeycode get_key_from_name(ZString name) @extern("SDL_GetKeyFromName
  @return `true on success or false on failure; call SDL_GetError() for more
           information.`
 *>
-extern fn bool start_text_input(SDLWindow* window) @extern("SDL_StartTextInput");
+extern fn bool SDLWindow.start_text_input(&window) @extern("SDL_StartTextInput");
 
 <*
  Text input type.
@@ -358,7 +358,7 @@ enum SDLCapitalization
  @return `true on success or false on failure; call SDL_GetError() for more
           information.`
 *>
-extern fn bool start_text_input_with_properties(SDLWindow* window, SDLPropertiesID props) @extern("SDL_StartTextInputWithProperties");
+extern fn bool SDLWindow.start_text_input_with_properties(&window, SDLPropertiesID props) @extern("SDL_StartTextInputWithProperties");
 
 enum SDLPropTextinput : const inline ZString
 {
@@ -378,7 +378,7 @@ enum SDLPropTextinput : const inline ZString
  @param window : `the window to check.`
  @return `true if text input events are enabled else false.`
 *>
-extern fn bool text_input_active(SDLWindow* window) @extern("SDL_TextInputActive");
+extern fn bool SDLWindow.text_input_active(&window) @extern("SDL_TextInputActive");
 
 <*
  Stop receiving any text input events in a window.
@@ -393,7 +393,7 @@ extern fn bool text_input_active(SDLWindow* window) @extern("SDL_TextInputActive
  @return `true on success or false on failure; call SDL_GetError() for more
           information.`
 *>
-extern fn bool stop_text_input(SDLWindow* window) @extern("SDL_StopTextInput");
+extern fn bool SDLWindow.stop_text_input(&window) @extern("SDL_StopTextInput");
 
 <*
  Dismiss the composition window/IME without disabling the subsystem.
@@ -405,7 +405,7 @@ extern fn bool stop_text_input(SDLWindow* window) @extern("SDL_StopTextInput");
  @return `true on success or false on failure; call SDL_GetError() for more
           information.`
 *>
-extern fn bool clear_composition(SDLWindow* window) @extern("SDL_ClearComposition");
+extern fn bool SDLWindow.clear_composition(&window) @extern("SDL_ClearComposition");
 
 <*
  Set the area used to type Unicode text input.
@@ -424,7 +424,7 @@ extern fn bool clear_composition(SDLWindow* window) @extern("SDL_ClearCompositio
  @return `true on success or false on failure; call SDL_GetError() for more
           information.`
 *>
-extern fn bool set_text_input_area(SDLWindow* window, SDLRect* rect, CInt cursor) @extern("SDL_SetTextInputArea");
+extern fn bool SDLWindow.set_text_input_area(&window, SDLRect* rect, CInt cursor) @extern("SDL_SetTextInputArea");
 
 <*
  Get the area used to type Unicode text input.
@@ -442,7 +442,7 @@ extern fn bool set_text_input_area(SDLWindow* window, SDLRect* rect, CInt cursor
  @return `true on success or false on failure; call SDL_GetError() for more
           information.`
 *>
-extern fn bool get_text_input_area(SDLWindow* window, SDLRect* rect, CInt* cursor) @extern("SDL_GetTextInputArea");
+extern fn bool SDLWindow.get_text_input_area(&window, SDLRect* rect, CInt* cursor) @extern("SDL_GetTextInputArea");
 
 <*
  Check whether the platform has screen keyboard support.
@@ -464,4 +464,4 @@ extern fn bool has_screen_keyboard_support() @extern("SDL_HasScreenKeyboardSuppo
  @param window : `the window for which screen keyboard should be queried.`
  @return `true if screen keyboard is shown or false if not.`
 *>
-extern fn bool screen_keyboard_shown(SDLWindow* window) @extern("SDL_ScreenKeyboardShown");
+extern fn bool SDLWindow.screen_keyboard_shown(&window) @extern("SDL_ScreenKeyboardShown");
