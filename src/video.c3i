@@ -126,33 +126,33 @@ typedef SDLWindow = void;
  changed on existing windows by the app, and some of it might be altered by
  the user or system outside of the app's control.
 *>
-enum SDLWindowFlags : const ulong
+bitstruct SDLWindowFlags : ulong
 {
-	FULLSCREEN           = 0x0000000000000001u,    // window is in fullscreen mode
-	OPENGL               = 0x0000000000000002u,    // window usable with OpenGL context
-	OCCLUDED             = 0x0000000000000004u,    // window is occluded
-	HIDDEN               = 0x0000000000000008u,    // window is neither mapped onto the desktop nor shown in the taskbar/dock/window list; SDL_ShowWindow() is required for it to become visible
-	BORDERLESS           = 0x0000000000000010u,    // no window decoration
-	RESIZABLE            = 0x0000000000000020u,    // window can be resized
-	MINIMIZED            = 0x0000000000000040u,    // window is minimized
-	MAXIMIZED            = 0x0000000000000080u,    // window is maximized
-	MOUSE_GRABBED        = 0x0000000000000100u,    // window has grabbed mouse input
-	INPUT_FOCUS          = 0x0000000000000200u,    // window has input focus
-	MOUSE_FOCUS          = 0x0000000000000400u,    // window has mouse focus
-	EXTERNAL             = 0x0000000000000800u,    // window not created by SDL
-	MODAL                = 0x0000000000001000u,    // window is modal
-	HIGH_PIXEL_DENSITY   = 0x0000000000002000u,    // window uses high pixel density back buffer if possible
-	MOUSE_CAPTURE        = 0x0000000000004000u,    // window has mouse captured (unrelated to MOUSE_GRABBED)
-	MOUSE_RELATIVE_MODE  = 0x0000000000008000u,    // window has relative mode enabled
-	ALWAYS_ON_TOP        = 0x0000000000010000u,    // window should always be above others
-	UTILITY              = 0x0000000000020000u,    // window should be treated as a utility window, not showing in the task bar and window list
-	TOOLTIP              = 0x0000000000040000u,    // window should be treated as a tooltip and does not get mouse or keyboard focus, requires a parent window
-	POPUP_MENU           = 0x0000000000080000u,    // window should be treated as a popup menu, requires a parent window
-	KEYBOARD_GRABBED     = 0x0000000000100000u,    // window has grabbed keyboard input
-	VULKAN               = 0x0000000010000000u,    // window usable for Vulkan surface
-	METAL                = 0x0000000020000000u,    // window usable for Metal view
-	TRANSPARENT          = 0x0000000040000000u,    // window with transparent buffer
-	NOT_FOCUSABLE        = 0x0000000080000000u,    // window should not be focusable
+	bool fullscreen           : 0; // 0x0000000000000001u,    // window is in fullscreen mode
+	bool opengl               : 1; // 0x0000000000000002u,    // window usable with OpenGL context
+	bool occluded             : 2; // 0x0000000000000004u,    // window is occluded
+	bool hidden               : 3; // 0x0000000000000008u,    // window is neither mapped onto the desktop nor shown in the taskbar/dock/window list; SDL_ShowWindow() is required for it to become visible
+	bool borderless           : 4; // 0x0000000000000010u,    // no window decoration
+	bool resizable            : 5; // 0x0000000000000020u,    // window can be resized
+	bool minimized            : 6; // 0x0000000000000040u,    // window is minimized
+	bool maximized            : 7; // 0x0000000000000080u,    // window is maximized
+	bool mouse_grabbed        : 8; // 0x0000000000000100u,    // window has grabbed mouse input
+	bool input_focus          : 9; // 0x0000000000000200u,    // window has input focus
+	bool mouse_focus          : 10; // 0x0000000000000400u,    // window has mouse focus
+	bool external             : 11; // 0x0000000000000800u,    // window not created by SDL
+	bool modal                : 12; // 0x0000000000001000u,    // window is modal
+	bool high_pixel_density   : 13; // 0x0000000000002000u,    // window uses high pixel density back buffer if possible
+	bool mouse_capture        : 14; // 0x0000000000004000u,    // window has mouse captured (unrelated to MOUSE_GRABBED)
+	bool mouse_relative_mode  : 15; // 0x0000000000008000u,    // window has relative mode enabled
+	bool always_on_top        : 16; // 0x0000000000010000u,    // window should always be above others
+	bool utility              : 17; // 0x0000000000020000u,    // window should be treated as a utility window, not showing in the task bar and window list
+	bool tooltip              : 18; // 0x0000000000040000u,    // window should be treated as a tooltip and does not get mouse or keyboard focus, requires a parent window
+	bool popup_menu           : 19; // 0x0000000000080000u,    // window should be treated as a popup menu, requires a parent window
+	bool keyboard_grabbed     : 20; // 0x0000000000100000u,    // window has grabbed keyboard input
+	bool vulkan               : 28; // 0x0000000010000000u,    // window usable for Vulkan surface
+	bool metal                : 29; // 0x0000000020000000u,    // window usable for Metal view
+	bool transparent          : 30; // 0x0000000040000000u,    // window with transparent buffer
+	bool not_focusable        : 31; // 0x0000000080000000u,    // window should not be focusable
 }
 
 <*
@@ -273,7 +273,7 @@ typedef SDLEGLAttrib = iptr;
  An EGL integer attribute, used when creating an EGL surface.
  This datatype is available since SDL 3.2.0.
 *>
-typedef SDLEGLint = CInt ;
+typedef SDLEGLint = CInt;
 
 <*
  EGL platform attribute initialization callback.

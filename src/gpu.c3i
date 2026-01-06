@@ -679,14 +679,15 @@ enum SDLGPUTextureFormat : const CInt
  within a compute pass. Note that SIMULTANEOUS usage is only supported by a
  limited number of texture formats.
 *>
-typedef SDLGPUTextureUsageFlags = uint;
-const SDLGPUTextureUsageFlags GPU_TEXTUREUSAGE_SAMPLER =                                 (1u << 0); /**< Texture supports sampling. */
-const SDLGPUTextureUsageFlags GPU_TEXTUREUSAGE_COLOR_TARGET =                            (1u << 1); /**< Texture is a color render target. */
-const SDLGPUTextureUsageFlags GPU_TEXTUREUSAGE_DEPTH_STENCIL_TARGET =                    (1u << 2); /**< Texture is a depth stencil target. */
-const SDLGPUTextureUsageFlags GPU_TEXTUREUSAGE_GRAPHICS_STORAGE_READ =                   (1u << 3); /**< Texture supports storage reads in graphics stages. */
-const SDLGPUTextureUsageFlags GPU_TEXTUREUSAGE_COMPUTE_STORAGE_READ =                    (1u << 4); /**< Texture supports storage reads in the compute stage. */
-const SDLGPUTextureUsageFlags GPU_TEXTUREUSAGE_COMPUTE_STORAGE_WRITE =                   (1u << 5); /**< Texture supports storage writes in the compute stage. */
-const SDLGPUTextureUsageFlags GPU_TEXTUREUSAGE_COMPUTE_STORAGE_SIMULTANEOUS_READ_WRITE = (1u << 6); /**< Texture supports reads and writes in the same compute shader. This is NOT equivalent to READ | WRITE. */
+bitstruct SDLGPUTextureUsageFlags : uint {
+	bool sampler                                  : 0; /**< Texture supports sampling. */
+	bool color_target                             : 1; /**< Texture is a color render target. */
+	bool depth_stencil_target                     : 2; /**< Texture is a depth stencil target. */
+	bool graphics_storage_read                    : 3; /**< Texture supports storage reads in graphics stages. */
+	bool compute_storage_read                     : 4; /**< Texture supports storage reads in the compute stage. */
+	bool compute_storage_write                    : 5; /**< Texture supports storage writes in the compute stage. */
+	bool compute_storage_simultaneous_read_write  : 6; /**< Texture supports reads and writes in the same compute shader. This is NOT equivalent to READ | WRITE. */
+}
 
 <*
  Specifies the type of a texture.
@@ -748,13 +749,14 @@ enum SDLGPUCubeMapFace : const CInt
  layout conventions. In practical terms this means you must ensure that vec3
  and vec4 fields are 16-byte aligned.
 *>
-typedef SDLGPUBufferUsageFlags = uint;
-const SDLGPUBufferUsageFlags GPU_BUFFERUSAGE_VERTEX =                (1u << 0); /**< Buffer is a vertex buffer. */
-const SDLGPUBufferUsageFlags GPU_BUFFERUSAGE_INDEX =                 (1u << 1); /**< Buffer is an index buffer. */
-const SDLGPUBufferUsageFlags GPU_BUFFERUSAGE_INDIRECT =              (1u << 2); /**< Buffer is an indirect buffer. */
-const SDLGPUBufferUsageFlags GPU_BUFFERUSAGE_GRAPHICS_STORAGE_READ = (1u << 3); /**< Buffer supports storage reads in graphics stages. */
-const SDLGPUBufferUsageFlags GPU_BUFFERUSAGE_COMPUTE_STORAGE_READ =  (1u << 4); /**< Buffer supports storage reads in the compute stage. */
-const SDLGPUBufferUsageFlags GPU_BUFFERUSAGE_COMPUTE_STORAGE_WRITE = (1u << 5); /**< Buffer supports storage writes in the compute stage. */
+bitstruct SDLGPUBufferUsageFlags : uint {
+	bool vertex                : 0; /**< Buffer is a vertex buffer. */
+	bool index                 : 1; /**< Buffer is an index buffer. */
+	bool indirect              : 2; /**< Buffer is an indirect buffer. */
+	bool graphics_storage_read : 3; /**< Buffer supports storage reads in graphics stages. */
+	bool compute_storage_read  : 4; /**< Buffer supports storage reads in the compute stage. */
+	bool compute_storage_write : 5; /**< Buffer supports storage writes in the compute stage. */
+}
 
 <*
  Specifies how a transfer buffer is intended to be used by the client.
@@ -785,14 +787,15 @@ enum SDLGPUShaderStage : const CInt
 
  Each format corresponds to a specific backend that accepts it.
 *>
-typedef SDLGPUShaderFormat = uint;
-const SDLGPUShaderFormat GPU_SHADERFORMAT_INVALID =  0;
-const SDLGPUShaderFormat GPU_SHADERFORMAT_PRIVATE =  (1u << 0); /**< Shaders for NDA'd platforms. */
-const SDLGPUShaderFormat GPU_SHADERFORMAT_SPIRV =    (1u << 1); /**< SPIR-V shaders for Vulkan. */
-const SDLGPUShaderFormat GPU_SHADERFORMAT_DXBC =     (1u << 2); /**< DXBC SM5_1 shaders for D3D12. */
-const SDLGPUShaderFormat GPU_SHADERFORMAT_DXIL =     (1u << 3); /**< DXIL SM6_0 shaders for D3D12. */
-const SDLGPUShaderFormat GPU_SHADERFORMAT_MSL =      (1u << 4); /**< MSL shaders for Metal. */
-const SDLGPUShaderFormat GPU_SHADERFORMAT_METALLIB = (1u << 5); /**< Precompiled metallib shaders for Metal. */
+bitstruct SDLGPUShaderFormat : uint {
+	// bool invalid = 0;
+	bool private   : 0; /**< Shaders for NDA'd platforms. */
+	bool spirv     : 1; /**< SPIR-V shaders for Vulkan. */
+	bool dxbc      : 2; /**< DXBC SM5_1 shaders for D3D12. */
+	bool dxil      : 3; /**< DXIL SM6_0 shaders for D3D12. */
+	bool msl       : 4; /**< MSL shaders for Metal. */
+	bool metallib  : 5; /**< Precompiled metallib shaders for Metal. */
+}
 
 <*
  Specifies the format of a vertex attribute.
@@ -982,12 +985,12 @@ enum SDLGPUBlendFactor : const CInt
  Specifies which color components are written in a graphics pipeline.
  This datatype is available since SDL 3.2.0.
 *>
-typedef SDLGPUColorComponentFlags = char;
-
-const SDLGPUColorComponentFlags GPU_COLORCOMPONENT_R = (1u << 0); /**< the red component */
-const SDLGPUColorComponentFlags GPU_COLORCOMPONENT_G = (1u << 1); /**< the green component */
-const SDLGPUColorComponentFlags GPU_COLORCOMPONENT_B = (1u << 2); /**< the blue component */
-const SDLGPUColorComponentFlags GPU_COLORCOMPONENT_A = (1u << 3); /**< the alpha component */
+bitstruct SDLGPUColorComponentFlags : char {
+	bool r : 0; /**< the red component */
+	bool g : 1; /**< the green component */
+	bool b : 2; /**< the blue component */
+	bool a : 3; /**< the alpha component */
+}
 
 <*
  Specifies a filter operation used by a sampler.
@@ -1737,9 +1740,9 @@ struct SDLGPUStorageTextureReadWriteBinding
  This function is available since SDL 3.2.0.
 
  @param format_flags : `a bitflag indicating which shader formats the app is
-                     able to provide.`
+                        able to provide.`
  @param name : `the preferred GPU driver, or NULL to let SDL pick the optimal
-             driver.`
+                driver.`
  @return `true if supported, false otherwise.`
 *>
 extern fn bool gpu_supports_shader_formats(SDLGPUShaderFormat format_flags, ZString name) @extern("SDL_GPUSupportsShaderFormats");
@@ -1758,10 +1761,10 @@ extern fn bool gpu_supports_properties(SDLPropertiesID props) @extern("SDL_GPUSu
  This function is available since SDL 3.2.0.
 
  @param format_flags : `a bitflag indicating which shader formats the app is
-                     able to provide.`
+                        able to provide.`
  @param debug_mode : `enable debug mode properties and validations.`
  @param name : `the preferred GPU driver, or NULL to let SDL pick the optimal
-             driver.`
+                driver.`
  @return `a GPU context on success or NULL on failure; call SDL_GetError()
           for more information.`
 *>
@@ -1910,13 +1913,13 @@ extern fn SDLGPUShaderFormat SDLGPUDevice.get_shader_formats(&device) @extern("S
 
  @param device : `a GPU Context.`
  @param createinfo : `a struct describing the state of the compute pipeline to
-                   create.`
+                      create.`
  @return `a compute pipeline object on success, or NULL on failure; call
           SDL_GetError() for more information.`
 *>
 extern fn SDLGPUComputePipeline* SDLGPUDevice.create_compute_pipeline(&device, SDLGPUComputePipelineCreateInfo* createinfo) @extern("SDL_CreateGPUComputePipeline");
 
-enum SDLPropGPUComputePipelineCreate : const inline ZString 
+enum SDLPropGPUComputePipelineCreate : const inline ZString
 {
 	NAME_STRING = "SDL.gpu.computepipeline.create.name",
 }
@@ -1933,7 +1936,7 @@ enum SDLPropGPUComputePipelineCreate : const inline ZString
 
  @param device : `a GPU Context.`
  @param createinfo : `a struct describing the state of the graphics pipeline to
-                   create.`
+                      create.`
  @return `a graphics pipeline object on success, or NULL on failure; call
           SDL_GetError() for more information.`
 *>
@@ -2147,7 +2150,7 @@ enum SDLPropGPUBufferCreate : const inline ZString
 
  @param device : `a GPU Context.`
  @param createinfo : `a struct describing the state of the transfer buffer to
-                   create.`
+                      create.`
  @return `a transfer buffer on success, or NULL on failure; call
           SDL_GetError() for more information.`
 *>
@@ -2403,12 +2406,12 @@ extern fn void SDLGPUCommandBuffer.push_compute_uniform_data(&command_buffer, ui
 
  @param command_buffer : `a command buffer.`
  @param color_target_infos : `an array of texture subresources with
-                           corresponding clear values and load/store ops.`
+                              corresponding clear values and load/store ops.`
  @param num_color_targets : `the number of color targets in the
-                          color_target_infos array.`
+                             color_target_infos array.`
  @param depth_stencil_target_info : `a texture subresource with corresponding
-                                  clear value and load/store ops, may be
-                                  NULL.`
+                                     clear value and load/store ops, may be
+                                     NULL.`
  @return `a render pass handle.`
 *>
 extern fn SDLGPURenderPass* SDLGPUCommandBuffer.begin_render_pass(&command_buffer, SDLGPUColorTargetInfo* color_target_infos, uint num_color_targets, SDLGPUDepthStencilTargetInfo* depth_stencil_target_info) @extern("SDL_BeginGPURenderPass");
@@ -2468,7 +2471,7 @@ extern fn void SDLGPURenderPass.set_stencil_reference(&render_pass, char referen
  @param render_pass : `a render pass handle.`
  @param first_slot : `the vertex buffer slot to begin binding from.`
  @param bindings : `an array of SDL_GPUBufferBinding structs containing vertex
-                 buffers and offset values.`
+                    buffers and offset values.`
  @param num_bindings : `the number of bindings in the bindings array.`
 *>
 extern fn void SDLGPURenderPass.bind_vertex_buffers(&render_pass, uint first_slot, SDLGPUBufferBinding* bindings, uint num_bindings) @extern("SDL_BindGPUVertexBuffers");
@@ -2481,7 +2484,7 @@ extern fn void SDLGPURenderPass.bind_vertex_buffers(&render_pass, uint first_slo
  @param render_pass : `a render pass handle.`
  @param binding : `a pointer to a struct containing an index buffer and offset.`
  @param index_element_size : `whether the index values in the buffer are 16- or
-                           32-bit.`
+                              32-bit.`
 *>
 extern fn void SDLGPURenderPass.bind_index_buffer(&render_pass, SDLGPUBufferBinding* binding, SDLGPUIndexElementSize index_element_size) @extern("SDL_BindGPUIndexBuffer");
 
@@ -2497,9 +2500,9 @@ extern fn void SDLGPURenderPass.bind_index_buffer(&render_pass, SDLGPUBufferBind
  @param render_pass : `a render pass handle.`
  @param first_slot : `the vertex sampler slot to begin binding from.`
  @param texture_sampler_bindings : `an array of texture-sampler binding
-                                 structs.`
+                                    structs.`
  @param num_bindings : `the number of texture-sampler pairs to bind from the
-                     array.`
+                        array.`
 *>
 extern fn void SDLGPURenderPass.bind_vertex_samplers(&render_pass, uint first_slot, SDLGPUTextureSamplerBinding* texture_sampler_bindings, uint num_bindings) @extern("SDL_BindGPUVertexSamplers");
 
@@ -2549,9 +2552,9 @@ extern fn void SDLGPURenderPass.bind_vertex_storage_buffers(&render_pass, uint f
  @param render_pass : `a render pass handle.`
  @param first_slot : `the fragment sampler slot to begin binding from.`
  @param texture_sampler_bindings : `an array of texture-sampler binding
-                                 structs.`
+                                    structs.`
  @param num_bindings : `the number of texture-sampler pairs to bind from the
-                     array.`
+                        array.`
 *>
 extern fn void SDLGPURenderPass.bind_fragment_samplers(&render_pass, uint first_slot, SDLGPUTextureSamplerBinding* texture_sampler_bindings, uint num_bindings) @extern("SDL_BindGPUFragmentSamplers");
 
@@ -2610,7 +2613,7 @@ extern fn void SDLGPURenderPass.bind_fragment_storage_buffers(&render_pass, uint
  @param num_instances : `the number of instances to draw.`
  @param first_index : `the starting index within the index buffer.`
  @param vertex_offset : `value added to vertex index before indexing into the
-                      vertex buffer.`
+                         vertex buffer.`
  @param first_instance : `the ID of the first instance to draw.`
 *>
 extern fn void SDLGPURenderPass.draw_indexed_primitives(&render_pass, uint num_indices, uint num_instances, uint first_index, int vertex_offset, uint first_instance) @extern("SDL_DrawGPUIndexedPrimitives");
@@ -2649,7 +2652,7 @@ extern fn void SDLGPURenderPass.draw_primitives(&render_pass, uint num_vertices,
  @param buffer : `a buffer containing draw parameters.`
  @param offset : `the offset to start reading from the draw buffer.`
  @param draw_count : `the number of draw parameter sets that should be read
-                   from the draw buffer.`
+                      from the draw buffer.`
 *>
 extern fn void SDLGPURenderPass.draw_primitives_indirect(&render_pass, SDLGPUBuffer* buffer, uint offset, uint draw_count) @extern("SDL_DrawGPUPrimitivesIndirect");
 
@@ -2666,7 +2669,7 @@ extern fn void SDLGPURenderPass.draw_primitives_indirect(&render_pass, SDLGPUBuf
  @param buffer : `a buffer containing draw parameters.`
  @param offset : `the offset to start reading from the draw buffer.`
  @param draw_count : `the number of draw parameter sets that should be read
-                   from the draw buffer.`
+                      from the draw buffer.`
 *>
 extern fn void SDLGPURenderPass.draw_indexed_primitives_indirect(&render_pass, SDLGPUBuffer* buffer, uint offset, uint draw_count) @extern("SDL_DrawGPUIndexedPrimitivesIndirect");
 
@@ -2708,13 +2711,13 @@ extern fn void SDLGPURenderPass.end_render_pass(&render_pass) @extern("SDL_EndGP
 
  @param command_buffer : `a command buffer.`
  @param storage_texture_bindings : `an array of writeable storage texture
-                                 binding structs.`
+                                    binding structs.`
  @param num_storage_texture_bindings : `the number of storage textures to bind
-                                     from the array.`
+                                        from the array.`
  @param storage_buffer_bindings : `an array of writeable storage buffer binding
-                                structs.`
+                                   structs.`
  @param num_storage_buffer_bindings : `the number of storage buffers to bind
-                                    from the array.`
+                                       from the array.`
  @return `a compute pass handle.`
 *>
 extern fn SDLGPUComputePass* SDLGPUCommandBuffer.begin_compute_pass(&command_buffer, SDLGPUStorageTextureReadWriteBinding* storage_texture_bindings, uint num_storage_texture_bindings, SDLGPUStorageBufferReadWriteBinding* storage_buffer_bindings, uint num_storage_buffer_bindings) @extern("SDL_BeginGPUComputePass");
@@ -2740,9 +2743,9 @@ extern fn void SDLGPUComputePass.bind_compute_pipeline(&compute_pass, SDLGPUComp
  @param compute_pass : `a compute pass handle.`
  @param first_slot : `the compute sampler slot to begin binding from.`
  @param texture_sampler_bindings : `an array of texture-sampler binding
-                                 structs.`
+                                    structs.`
  @param num_bindings : `the number of texture-sampler bindings to bind from the
-                     array.`
+                        array.`
 *>
 extern fn void SDLGPUComputePass.bind_compute_samplers(&compute_pass, uint first_slot, SDLGPUTextureSamplerBinding* texture_sampler_bindings, uint num_bindings) @extern("SDL_BindGPUComputeSamplers");
 
@@ -2793,11 +2796,11 @@ extern fn void SDLGPUComputePass.bind_compute_storage_buffers(&compute_pass, uin
 
  @param compute_pass : `a compute pass handle.`
  @param groupcount_x : `number of local workgroups to dispatch in the X
-                     dimension.`
+                        dimension.`
  @param groupcount_y : `number of local workgroups to dispatch in the Y
-                     dimension.`
+                        dimension.`
  @param groupcount_z : `number of local workgroups to dispatch in the Z
-                     dimension.`
+                        dimension.`
 *>
 extern fn void SDLGPUComputePass.dispatch_compute(&compute_pass, uint groupcount_x, uint groupcount_y, uint groupcount_z) @extern("SDL_DispatchGPUCompute");
 
@@ -2887,7 +2890,7 @@ extern fn SDLGPUCopyPass* SDLGPUCommandBuffer.begin_copy_pass(&command_buffer) @
  @param source : `the source transfer buffer with image layout information.`
  @param destination : `the destination texture region.`
  @param cycle : `if true, cycles the texture if the texture is bound, otherwise
-              overwrites the data.`
+                 overwrites the data.`
 *>
 extern fn void SDLGPUCopyPass.upload_to_texture(&copy_pass, SDLGPUTextureTransferInfo* source, SDLGPUTextureRegion* destination, bool cycle) @extern("SDL_UploadToGPUTexture");
 
@@ -2902,7 +2905,7 @@ extern fn void SDLGPUCopyPass.upload_to_texture(&copy_pass, SDLGPUTextureTransfe
  @param source : `the source transfer buffer with offset.`
  @param destination : `the destination buffer with offset and size.`
  @param cycle : `if true, cycles the buffer if it is already bound, otherwise
-              overwrites the data.`
+                 overwrites the data.`
 *>
 extern fn void SDLGPUCopyPass.upload_to_buffer(&copy_pass, SDLGPUTransferBufferLocation* source, SDLGPUBufferRegion* destination, bool cycle) @extern("SDL_UploadToGPUBuffer");
 
@@ -2920,7 +2923,7 @@ extern fn void SDLGPUCopyPass.upload_to_buffer(&copy_pass, SDLGPUTransferBufferL
  @param h : `the height of the region to copy.`
  @param d : `the depth of the region to copy.`
  @param cycle : `if true, cycles the destination texture if the destination
-              texture is bound, otherwise overwrites the data.`
+                 texture is bound, otherwise overwrites the data.`
 *>
 extern fn void SDLGPUCopyPass.copy_texture_to_texture(&copy_pass, SDLGPUTextureLocation* source, SDLGPUTextureLocation* destination, uint w, uint h, uint d, bool cycle) @extern("SDL_CopyGPUTextureToTexture");
 
@@ -2936,7 +2939,7 @@ extern fn void SDLGPUCopyPass.copy_texture_to_texture(&copy_pass, SDLGPUTextureL
  @param destination : `the buffer and offset to copy to.`
  @param size : `the length of the buffer to copy.`
  @param cycle : `if true, cycles the destination buffer if it is already bound,
-              otherwise overwrites the data.`
+                 otherwise overwrites the data.`
 *>
 extern fn void SDLGPUCopyPass.copy_buffer_to_buffer(&copy_pass, SDLGPUBufferLocation* source, SDLGPUBufferLocation* destination, uint size, bool cycle) @extern("SDL_CopyGPUBufferToBuffer");
 
@@ -2950,7 +2953,7 @@ extern fn void SDLGPUCopyPass.copy_buffer_to_buffer(&copy_pass, SDLGPUBufferLoca
  @param copy_pass : `a copy pass handle.`
  @param source : `the source texture region.`
  @param destination : `the destination transfer buffer with image layout
-                    information.`
+                       information.`
 *>
 extern fn void SDLGPUCopyPass.download_from_texture(&copy_pass, SDLGPUTextureRegion* source, SDLGPUTextureTransferInfo* destination) @extern("SDL_DownloadFromGPUTexture");
 
@@ -3099,7 +3102,7 @@ extern fn bool SDLGPUDevice.set_swapchain_parameters(&device, SDLWindow* window,
 
  @param device : `a GPU context.`
  @param allowed_frames_in_flight : `the maximum number of frames that can be
-                                 pending on the GPU.`
+                                    pending on the GPU.`
  @return `true if successful, false on error; call SDL_GetError() for more
           information.`
 *>
@@ -3146,11 +3149,11 @@ extern fn SDLGPUTextureFormat SDLGPUDevice.get_swapchain_texture_format(&device,
  @param command_buffer : `a command buffer.`
  @param window : `a window that has been claimed.`
  @param swapchain_texture : `a pointer filled in with a swapchain texture
-                          handle.`
+                             handle.`
  @param swapchain_texture_width : `a pointer filled in with the swapchain
-                                texture width, may be NULL.`
+                                   texture width, may be NULL.`
  @param swapchain_texture_height : `a pointer filled in with the swapchain
-                                 texture height, may be NULL.`
+                                    texture height, may be NULL.`
  @return `true on success, false on error; call SDL_GetError() for more
           information.`
 *>
@@ -3201,11 +3204,11 @@ extern fn bool SDLGPUDevice.wait_for_swapchain(&device, SDLWindow* window) @exte
  @param command_buffer : `a command buffer.`
  @param window : `a window that has been claimed.`
  @param swapchain_texture : `a pointer filled in with a swapchain texture
-                          handle.`
+                             handle.`
  @param swapchain_texture_width : `a pointer filled in with the swapchain
-                                texture width, may be NULL.`
+                                   texture width, may be NULL.`
  @param swapchain_texture_height : `a pointer filled in with the swapchain
-                                 texture height, may be NULL.`
+                                    texture height, may be NULL.`
  @return `true on success, false on error; call SDL_GetError() for more
           information.`
 *>
@@ -3282,7 +3285,7 @@ extern fn bool SDLGPUDevice.wait_for_idle(&device) @extern("SDL_WaitForGPUIdle")
 
  @param device : `a GPU context.`
  @param wait_all : `if 0, wait for any fence to be signaled, if 1, wait for all
-                 fences to be signaled.`
+                    fences to be signaled.`
  @param fences : `an array of fences to wait on.`
  @param num_fences : `the number of fences in the fences array.`
  @return `true on success, false on failure; call SDL_GetError() for more

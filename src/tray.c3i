@@ -36,13 +36,13 @@ typedef SDLTrayEntry = void;
  the time a tray entry is created. Other flags are optional; zero or more of
  those can be OR'ed together with the required flag.
 *>
-enum SDLTrayEntryFlags : const uint
+bitstruct SDLTrayEntryFlags : uint
 {
-	BUTTON     = 0x00000001u, // Make the entry a simple button. Required. 
-	CHECKBOX   = 0x00000002u, // Make the entry a checkbox. Required. 
-	SUBMENU    = 0x00000004u, // Prepare the entry to have a submenu. Required 
-	DISABLED   = 0x80000000u, // Make the entry disabled. Optional. 
-	CHECKED    = 0x40000000u, // Make the entry checked. This is valid only for checkboxes. Optional. 
+	bool button     : 0; // 0x00000001u Make the entry a simple button. Required.
+	bool checkbox   : 1; // 0x00000002u Make the entry a checkbox. Required.
+	bool submenu    : 2; // 0x00000004u Prepare the entry to have a submenu. Required
+	bool disabled   : 31; // 0x80 00 00 00u Make the entry disabled. Optional.
+	bool checked    : 30; // 0x40000000u Make the entry checked. This is valid only for checkboxes. Optional.
 }
 
 <*
@@ -50,7 +50,7 @@ enum SDLTrayEntryFlags : const uint
  This datatype is available since SDL 3.2.0.
 
  @param userdata : `an optional pointer to pass extra data to the callback when
-                 it will be invoked.`
+                    it will be invoked.`
  @param entry : `the tray entry that was selected.s`
 *>
 alias SDLTrayCallback = fn void(void* userdata, SDLTrayEntry* entry);
@@ -69,7 +69,7 @@ alias SDLTrayCallback = fn void(void* userdata, SDLTrayEntry* entry);
 
  @param icon : `a surface to be used as icon. May be NULL.`
  @param tooltip : `a tooltip to be displayed when the mouse hovers the icon in
-                UTF-8 encoding. Not supported on all platforms. May be NULL.`
+                   UTF-8 encoding. Not supported on all platforms. May be NULL.`
  @returns `The newly created system tray icon.`
 *>
 extern fn SDLTray* create_tray(SDLSurface* icon, ZString tooltip) @extern("SDL_CreateTray");
@@ -116,7 +116,6 @@ extern fn void SDLTray.set_tooltip(&tray, ZString tooltip) @extern("SDL_SetTrayT
  @return `the newly created menu.`
 *>
 extern fn SDLTrayMenu* SDLTray.create_menu(&tray) @extern("SDL_CreateTrayMenu");
-
 
 <*
  Create a submenu for a system tray entry.
@@ -186,7 +185,7 @@ extern fn SDLTrayMenu* SDLTrayEntry.get_submenu(&entry) @extern("SDL_GetTraySubm
 
  @param menu : `The menu to get entries from.`
  @param count : `An optional pointer to obtain the number of entries in the
-              menu.`
+                 menu.`
  @return `a NULL-terminated list of entries within the given menu. The
           pointer becomes invalid when any function that inserts or deletes
           entries in the menu is called.`
@@ -218,9 +217,9 @@ extern fn void SDLTrayEntry.remove_entry(&entry) @extern("SDL_RemoveTrayEntry");
 
  @param menu : `the menu to append the entry to.`
  @param pos : `the desired position for the new entry. Entries at or following
-            this place will be moved. If pos is -1, the entry is appended.`
+               this place will be moved. If pos is -1, the entry is appended.`
  @param label : `the text to be displayed on the entry, in UTF-8 encoding, or
-              NULL for a separator.`
+                 NULL for a separator.`
  @param flags : `a combination of flags, some of which are mandatory.`
  @return `the newly created entry, or NULL if pos is out of bounds.`
 *>
@@ -319,7 +318,7 @@ extern fn bool SDLTrayEntry.get_enabled(&entry) @extern("SDL_GetTrayEntryEnabled
  @param entry : `the entry to be updated.`
  @param callback : `a callback to be invoked when the entry is selected.`
  @param userdata : `an optional pointer to pass extra data to the callback when
-                 it will be invoked.`
+                    it will be invoked.`
 *>
 extern fn void SDLTrayEntry.set_callback(&entry, SDLTrayCallback callback, void* userdata) @extern("SDL_SetTrayEntryCallback");
 

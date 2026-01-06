@@ -23,23 +23,23 @@ module sdl;
 
  If supported will display warning icon, etc.
 *>
-enum SDLMessageBoxFlags : const uint
+bitstruct SDLMessageBoxFlags : uint
 {
-	ERROR =                    0x00000010u, /**< error dialog */
-	WARNING =                  0x00000020u, /**< warning dialog */
-	INFORMATION =              0x00000040u, /**< informational dialog */
-	BUTTONS_LEFT_TO_RIGHT =    0x00000080u, /**< buttons placed left to right */
-	BUTTONS_RIGHT_TO_LEFT =    0x00000100u, /**< buttons placed right to left */
+	bool error                 : 4; // 0x00000010u /**< error dialog */
+	bool warning               : 5; // 0x00000020u /**< warning dialog */
+	bool information           : 6; // 0x00000040u /**< informational dialog */
+	bool buttons_left_to_right : 7; // 0x00000080u /**< buttons placed left to right */
+	bool buttons_right_to_left : 8; // 0x00000100u /**< buttons placed right to left */
 }
 
 <*
  SDL_MessageBoxButtonData flags.
  This datatype is available since SDL 3.2.0.
 *>
-enum SDLMessageBoxButtonFlags : const uint
+bitstruct SDLMessageBoxButtonFlags : uint
 {
-	RETURNKEY_DEFAULT = 0x00000001u, /**< Marks the default button when return is hit */
-	ESCAPEKEY_DEFAULT = 0x00000002u, /**< Marks the default button when escape is hit */
+	bool returnkey_default : 0; // 0x00000001u /**< Marks the default button when return is hit */
+	bool escapekey_default : 1; // 0x00000002u /**< Marks the default button when escape is hit */
 }
 
 <*

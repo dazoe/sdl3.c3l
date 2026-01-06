@@ -34,16 +34,16 @@ module sdl;
  These are the flags which may be passed to SDL_Init(). You should specify
  the subsystems which you will be using in your application.
 *>
-enum SDLInitFlags : const uint
+bitstruct SDLInitFlags : uint
 {
-	AUDIO      = 0x00000010u, // `SDL_INIT_AUDIO` implies `SDL_INIT_EVENTS`
-	VIDEO      = 0x00000020u, // `SDL_INIT_VIDEO` implies `SDL_INIT_EVENTS`, should be initialized on the main thread
-	JOYSTICK   = 0x00000200u, // `SDL_INIT_JOYSTICK` implies `SDL_INIT_EVENTS`
-	HAPTIC     = 0x00001000u, //
-	GAMEPAD    = 0x00002000u, // `SDL_INIT_GAMEPAD` implies `SDL_INIT_JOYSTICK`
-	EVENTS     = 0x00004000u, //
-	SENSOR     = 0x00008000u, // `SDL_INIT_SENSOR` implies `SDL_INIT_EVENTS`
-	CAMERA     = 0x00010000u, // `SDL_INIT_CAMERA` implies `SDL_INIT_EVENTS`
+	bool audio      : 4; // 0x00000010u `SDL_INIT_AUDIO` implies `SDL_INIT_EVENTS`
+	bool video      : 5; // 0x00000020u `SDL_INIT_VIDEO` implies `SDL_INIT_EVENTS`, should be initialized on the main thread
+	bool joystick   : 9; // 0x00000200u `SDL_INIT_JOYSTICK` implies `SDL_INIT_EVENTS`
+	bool haptic     : 12; // 0x00001000u
+	bool gamepad    : 13; // 0x00002000u `SDL_INIT_GAMEPAD` implies `SDL_INIT_JOYSTICK`
+	bool events     : 14; // 0x00004000u
+	bool sensor     : 15; // 0x00008000u `SDL_INIT_SENSOR` implies `SDL_INIT_EVENTS`
+	bool camera     : 16; // 0x00010000u `SDL_INIT_CAMERA` implies `SDL_INIT_EVENTS`
 }
 
 <*
