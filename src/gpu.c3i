@@ -2682,7 +2682,7 @@ extern fn void SDLGPURenderPass.draw_indexed_primitives_indirect(&render_pass, S
 
  @param render_pass : `a render pass handle.`
 *>
-extern fn void SDLGPURenderPass.end_render_pass(&render_pass) @extern("SDL_EndGPURenderPass");
+extern fn void SDLGPURenderPass.end(&render_pass) @extern("SDL_EndGPURenderPass");
 
 /* Compute Pass */
 
@@ -2832,7 +2832,7 @@ extern fn void SDLGPUComputePass.dispatch_compute_indirect(&compute_pass, SDLGPU
 
  @param compute_pass : `a compute pass handle.`
 *>
-extern fn void SDLGPUComputePass.end_compute_pass(&compute_pass) @extern("SDL_EndGPUComputePass");
+extern fn void SDLGPUComputePass.end(&compute_pass) @extern("SDL_EndGPUComputePass");
 
 /* TransferBuffer Data */
 
@@ -2976,7 +2976,7 @@ extern fn void SDLGPUCopyPass.download_from_buffer(&copy_pass, SDLGPUBufferRegio
 
  @param copy_pass : `a copy pass handle.`
 *>
-extern fn void SDLGPUCopyPass.end_copy_pass(&copy_pass) @extern("SDL_EndGPUCopyPass");
+extern fn void SDLGPUCopyPass.end(&copy_pass) @extern("SDL_EndGPUCopyPass");
 
 <*
  Generates mipmaps for the given texture.
